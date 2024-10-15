@@ -1,6 +1,9 @@
 !#/bin/bash
 
 
+# To ensure the commit message starts with the prefix DJ-X: ... DJ-XXXX:, place the file `commit-ms`  in `.git/hooks/` and make it executable: `chmode 755 ./commit-msg`.
+
+
 commit_message=$(cat "$1")
 
 if [[ ! $commit_message =~ ^DJ-[0-9]{1,4}: ]]; then
