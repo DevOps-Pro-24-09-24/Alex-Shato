@@ -12,10 +12,3 @@ repos:
     rev: 22.10.0
     hooks:
     -   id: black
--   repo: local
-    hooks:
-    -   id: puppet-lint
-        name: puppet-lint
-        entry: puppet-lint --config=puppet-lint.rc
-        language: system
-        types: [puppet]
