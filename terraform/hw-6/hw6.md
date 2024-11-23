@@ -928,3 +928,5 @@ web_instance_id = "i-00c31fe4d535609a8"
 web_private_ip = "192.168.0.98"
 web_public_ip = "3.69.53.179"
 ```
+
+
