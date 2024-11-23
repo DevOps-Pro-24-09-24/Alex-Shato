@@ -2,6 +2,11 @@
 
 ~/git/Alex-Shato/terraform/hw-6 : root@test : Mon Nov 11 21:13:20
 terraform init
+
+```
+
+<details>
+
 Initializing the backend...
 Initializing provider plugins...
 - Finding latest version of hashicorp/aws...
@@ -22,17 +27,24 @@ If you ever set or change modules or backend configuration for Terraform,
 rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
 
+</details>
+
+```bash
 ~/git/Alex-Shato/terraform/hw-6 : root@test : Mon Nov 11 21:13:51
 terraform fmt --diff
 
 ~/git/Alex-Shato/terraform/hw-6 : root@test : Mon Nov 11 21:14:32
 terraform validate
 Success! The configuration is valid.
+```
 
 
+```bash
 ~/git/Alex-Shato/terraform/hw-6 : root@test : Mon Nov 11 21:14:43
 terraform plan
+```
 
+<details> 
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   + create
 
@@ -450,8 +462,13 @@ Changes to Outputs:
 
 Note: You didn't use the -out option to save this plan, so Terraform can't guarantee to take exactly these actions if you run "terraform apply" now.
 
+</details>
+
+```bash
 ~/git/Alex-Shato/terraform/hw-6 : root@test : Mon Nov 11 21:15:14
 terraform apply
+```
+<details>
 
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   + create
@@ -899,6 +916,9 @@ aws_instance.web: Creation complete after 13s [id=i-00c31fe4d535609a8]
 
 Apply complete! Resources: 10 added, 0 changed, 0 destroyed.
 
+</details>
+
+```bash
 Outputs:
 
 db_instance_id = "i-09938d62a3a871abe"
@@ -907,5 +927,4 @@ web_instance_dns = "ec2-3-69-53-179.eu-central-1.compute.amazonaws.com"
 web_instance_id = "i-00c31fe4d535609a8"
 web_private_ip = "192.168.0.98"
 web_public_ip = "3.69.53.179"
-
 ```
