@@ -1,0 +1,3 @@
+instance_size = "t3.micro"
+region        = "eu-west-1"
+base_ami      = "ami-1234567891011121314"
