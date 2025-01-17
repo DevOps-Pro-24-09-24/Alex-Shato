@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  web:
+    image: rvolhvr/hillel:hw-11_web_with_utils
+    ports:
+      - "5000:5000"
+    environment:
+      - MYSQL_DATABASE=flask_db
+      - MYSQL_USER=flask_user
+      - MYSQL_PASSWORD=flask_password
+    depends_on:
+      - mysql-service
+    networks:
+      - hw-11_ipvlan_network
+
+  mysql-service:
+    image: rvolhvr/hillel:hw-11_db
+    environment:
+      - MYSQL_DATABASE=flask_db
+      - MYSQL_USER=flask_user
+      - MYSQL_PASSWORD=flask_password
+      - MYSQL_ROOT_PASSWORD=flask
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - hw-11_ipvlan_network
+
+volumes:
+  db_data:
+
+networks:
+  hw-11_ipvlan_network:
+    external: true
