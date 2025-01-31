@@ -1,0 +1,12 @@
+- name: Update packages
+  block:
+    - name: Update apt packages (for Debian family)
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+    - name: Update dnf packages (for RedHat family)
+      ansible.builtin.dnf:
+        list: updates
+      when: ansible_os_family == "RedHat"

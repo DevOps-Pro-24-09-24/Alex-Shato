@@ -1,0 +1,74 @@
+---
+- name: Install packages
+  block:
+    - name: Install MySQL packages (for Debian family)
+      ansible.builtin.apt:
+        name:
+          - python3-pymysql
+          - mysql-server
+        update_cache: true
+        cache_valid_time: 3600
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install MySQL packages (for RedHat family)
+      ansible.builtin.dnf:
+        name:
+          - python3-PyMySQL
+          - mariadb-server
+        state: installed
+      when: ansible_os_family == "RedHat"
+
+- name: Initialize MySQL database (for RedHat family)
+  ansible.builtin.command:
+    cmd: mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/mysql --force
+  ignore_errors: true
+  when: ansible_os_family == "RedHat"
+
+- name: Check if MySQL is running
+  block:
+    - name: Check if MySQL is running (for Debian family)
+      ansible.builtin.command:
+        cmd: /usr/bin/mysqladmin --socket=/var/run/mysqld/mysqld.sock ping
+      register: mysql_ping_result_debian
+      changed_when: false
+      failed_when: false
+      when: ansible_os_family == "Debian"
+      # when: '"mysqld is alive" not in mysql_ping_result_debian.stdout and ansible_os_family == Debian'
+
+    - name: Check if MySQL is running (for RedHat family)
+      ansible.builtin.command:
+        cmd: /usr/bin/mysqladmin --socket=/var/lib/mysql/mysql.sock ping
+      register: mysql_ping_result_redhat
+      changed_when: false
+      failed_when: false
+      when: ansible_os_family == "RedHat"
+      # when: '"mysqld is alive" not in mysql_ping_result_redhat.stdout and ansible_os_family == "RedHat"'
+
+
+- name: Debug OS family
+  debug:
+    msg: "OS Family is {{ ansible_os_family }}"
+
+- name: Debug output of mysql_ping_result
+  debug:
+    var: mysql_ping_result_debian
+  when: ansible_os_family == "Debian"
+
+- name: Start MySQL service
+  block:
+    - name: Start MySQL service using service command (for Debian family)
+      ansible.builtin.command:
+        cmd: /usr/sbin/service mysql start
+      when: "ansible_os_family == 'Debian' and 'mysqld is alive' not in mysql_ping_result_debian.stdout"
+      register: start_mysql_result
+      changed_when: "'already running' not in start_mysql_result_debian.stdout"
+      ignore_errors: true
+
+    - name: Start MySQL service using mysqld_safe (for RedHat family)
+      ansible.builtin.command:
+        cmd: /usr/bin/mysqld_safe --datadir='/var/lib/mysql' &
+      when: "ansible_os_family == 'RedHat' and 'mysqld is alive' not in mysql_ping_result_redhat.stdout"
+      register: start_mysql_result
+      changed_when: start_mysql_result.rc == 0
+      ignore_errors: true

@@ -1,0 +1,8 @@
+---
+- name: Include tasks for installing apache
+  ansible.builtin.include_tasks:
+    file: "install-apache.yaml"
+
+- name: Include tasks for setting up apache
+  ansible.builtin.include_tasks:
+    file: "setup-apache.yaml"

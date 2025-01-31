@@ -1,0 +1,9 @@
+- name: Restart MySQL
+  ansible.builtin.command:
+    cmd: /usr/sbin/service mysql restart
+  when: ansible_os_family == "Debian"
+
+- name: Restart MySQL
+  ansible.builtin.command:
+    cmd: /usr/bin/systemctl restart mariadb || /usr/bin/mysqld_safe --datadir='/var/lib/mysql' &
+  when: ansible_os_family == "RedHat"

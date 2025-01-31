@@ -1,0 +1,28 @@
+<html>
+<head>
+<title>PHP to MySQL</title>
+</head>
+<body>
+<?php
+// Use the database host variable defined in Ansible vars with prefix
+$host = '{{ apache_db_host_ubuntu if ansible_os_family == "Debian" else apache_db_host_redhat }}';
+// Use the MySQL user variable defined in Ansible vars with prefix
+$user = '{{ apache_mysql_user_ubuntu if ansible_os_family == "Debian" else apache_mysql_user_redhat }}';
+// Use the MySQL password variable defined in Ansible vars with prefix
+$password = '{{ apache_mysql_password_ubuntu if ansible_os_family == "Debian" else apache_mysql_password_redhat }}';
+
+// Attempt to connect to the MySQL database
+$conn = mysqli_connect($host, $user, $password);
+
+if ($conn) {
+    // Display success message if connection is successful
+    echo 'Successful connection to the database';
+    http_response_code(200);
+} else {
+    // Display error message if connection fails
+    echo 'Failed to connect to database: ' . mysqli_connect_error();
+    http_response_code(500);
+}
+?>
+</body>
+</html>
