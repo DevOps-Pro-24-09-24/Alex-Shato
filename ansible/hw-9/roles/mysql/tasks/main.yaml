@@ -1,0 +1,6 @@
+---
+- name: Include tasks for installing MySQL
+  ansible.builtin.include_tasks: install-mysql.yaml
+
+- name: Include tasks for setting up MySQL
+  ansible.builtin.include_tasks: setup-mysql.yaml

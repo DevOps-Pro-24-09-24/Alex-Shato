@@ -1,0 +1,14 @@
+# roles/apache/vars/main.yaml
+
+---
+# Default variables for Debian family
+# apache_db_host_ubuntu: hw9-db-ubuntu
+apache_db_host_ubuntu: 172.17.0.3
+apache_mysql_user_ubuntu: 'test'
+apache_mysql_password_ubuntu: 'test'
+
+# Variables for RedHat family
+# apache_db_host_redhat: hw9-db-rocky
+apache_db_host_redhat: 172.17.0.5
+apache_mysql_user_redhat: 'test'
+apache_mysql_password_redhat: 'test'

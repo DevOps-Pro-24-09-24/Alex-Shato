@@ -1,0 +1,54 @@
+# roles/apache/tasks/setup-apache.yaml
+
+---
+- name: Ensure php-fpm is running (for Rocky family)
+  block:
+    - name: Create directory for PHP-FPM socket
+      ansible.builtin.file:
+        path: /run/php-fpm
+        state: directory
+        mode: '0775'
+        owner: apache
+        group: apache
+
+    - name: Check if php-fpm socket exists
+      stat:
+        path: /run/php-fpm/www.sock
+      register: php_fpm_socket
+
+    - name: Start php-fpm manually if socket does not exist
+      command: /usr/sbin/php-fpm -F
+      when: php_fpm_socket.stat.exists == false
+      ignore_errors: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Delete index.html file
+  # Remove the default index.html file from the web directory
+  ansible.builtin.file:
+    path: /var/www/html/index.html
+    state: absent
+
+- name: Upload application file
+  # Template the PHP application file into the web directory
+  ansible.builtin.template:
+    src: index.php.j2
+    dest: /var/www/html/index.php
+    mode: "0644"  # Set appropriate permissions for PHP files
+  notify:
+    - Restart Apache
+
+- name: Ensure web directory exists (for RedHat family)
+  # Ensure the web directory exists on RedHat-based systems
+  ansible.builtin.file:
+    path: /var/www/html
+    state: directory
+    mode: "0755"
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure web directory exists (for Debian family)
+  # Ensure the web directory exists on Debian-based systems
+  ansible.builtin.file:
+    path: /var/www/html
+    state: directory
+    mode: "0755"
+  when: ansible_os_family == "Debian"

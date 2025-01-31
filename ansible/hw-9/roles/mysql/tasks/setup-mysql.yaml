@@ -1,0 +1,83 @@
+# roles/mysql/tasks/setup-mysql.yaml
+
+---
+- name: Set the root password
+  # Set MySQL root password for both Debian and RedHat-based systems
+  community.mysql.mysql_user:
+    name: root
+    password: "{{ mysql_root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    login_password: ""
+  when: ansible_os_family == "Debian"
+
+- name: Set the root password (for RedHat family)
+  # Set MySQL root password for RedHat-based systems
+  community.mysql.mysql_user:
+    name: root
+    password: "{{ mysql_root_password }}"
+    login_unix_socket: /var/lib/mysql/mysql.sock
+    login_password: ""
+  when: ansible_os_family == "RedHat"
+
+- name: Update the cnf file
+  # Update MySQL configuration file for both Debian and RedHat-based systems
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/client.my.cnf.j2"
+    dest: "/root/.my.cnf"
+    mode: "0600"  # Use quotes for octal values
+  notify:
+    - Restart MySQL
+
+- name: Create a test user
+  # Create a test MySQL user for both Debian and RedHat-based systems
+  community.mysql.mysql_user:
+    name: "{{ mysql_user }}"
+    password: "{{ mysql_password }}"
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    state: present
+    priv: '*.*:ALL,GRANT'
+    host: '%'
+  notify:
+    - Restart MySQL
+
+- name: Remove all anonymous user accounts
+  # Remove all anonymous MySQL user accounts for both Debian and RedHat-based systems
+  community.mysql.mysql_user:
+    name: ''
+    host_all: true  # Corrected to 'true' instead of 'yes'
+    state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  notify:
+    - Restart MySQL
+
+- name: Remove the MySQL test database
+  # Remove the MySQL test database for both Debian and RedHat-based systems
+  community.mysql.mysql_db:
+    name: test
+    state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  notify:
+    - Restart MySQL
+
+- name: Change bind address (for Debian family)
+  # Change MySQL bind address for Debian-based systems
+  ansible.builtin.lineinfile:
+    path: "/etc/mysql/mysql.conf.d/mysqld.cnf"
+    regexp: "^bind-address"
+    line: "bind-address = 0.0.0.0"
+  notify:
+    - Restart MySQL
+  when: ansible_os_family == "Debian"
+
+- name: Change bind address (for RedHat family)
+  # Change MySQL bind address for RedHat-based systems
+  ansible.builtin.lineinfile:
+    path: "/etc/my.cnf.d/mariadb-server.cnf"
+    regexp: "^bind-address"
+    line: "bind-address = 0.0.0.0"
+  notify:
+    - Restart MySQL
+  when: ansible_os_family == "RedHat"

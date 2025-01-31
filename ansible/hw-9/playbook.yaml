@@ -1,0 +1,14 @@
+---
+- name: Configure webservers
+  hosts: webservers
+  become: false
+  roles:
+    - common
+    - apache
+
+- name: Configure dbservers
+  hosts: dbservers
+  become: false
+  roles:
+    - common
+    - mysql

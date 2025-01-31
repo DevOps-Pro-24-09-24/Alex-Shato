@@ -1,0 +1,16 @@
+---
+- name: Restart MySQL
+  # Restart MySQL service using service command for Debian-based systems
+  ansible.builtin.command:
+    cmd: /usr/sbin/service mysql restart
+  register: restart_mysql_result
+  changed_when: restart_mysql_result.rc == 0 and "'already running' not in restart_mysql_result.stdout"
+  when: ansible_os_family == "Debian"
+
+- name: Restart MySQL
+  # Restart MySQL service using systemctl or mysqld_safe command for RedHat-based systems
+  ansible.builtin.command:
+    cmd: /usr/bin/systemctl restart mariadb || /usr/bin/mysqld_safe --datadir='/var/lib/mysql' &
+  register: restart_mysql_result
+  changed_when: restart_mysql_result.rc == 0 or "'already running' not in restart_mysql_result.stdout"
+  when: ansible_os_family == "RedHat"

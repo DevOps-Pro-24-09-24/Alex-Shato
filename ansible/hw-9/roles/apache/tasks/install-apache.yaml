@@ -1,0 +1,71 @@
+---
+- name: Install Apache packages
+  block:
+    - name: Install Apache packages (for Debian family)
+      ansible.builtin.apt:
+        name:
+          - apache2
+          - php
+          - libapache2-mod-php
+          - php-mysql
+        update_cache: true
+        cache_valid_time: 3600
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install Apache packages (for RedHat family)
+      ansible.builtin.dnf:
+        name:
+          - httpd
+          - php
+          - php-mysqlnd
+        state: present
+      when: ansible_os_family == "RedHat"
+
+- name: Start Apache service
+  block:
+    - name: Start Apache service using apachectl (for Debian family)
+      ansible.builtin.command:
+        cmd: /usr/sbin/apachectl start
+      register: start_apache_result
+      changed_when: "'already running' not in start_apache_result.stdout"
+      when: ansible_os_family == "Debian"
+
+    - name: Start Apache service using apachectl (for RedHat family)
+      ansible.builtin.command:
+        cmd: /usr/sbin/httpd -k start
+      register: start_apache_result
+      changed_when: "'already running' not in start_apache_result.stdout"
+      when: ansible_os_family == "RedHat"
+
+- name: Ensure /etc/rc.local exists and is executable (for Debian family)
+  ansible.builtin.file:
+    path: /etc/rc.local
+    state: touch
+    mode: '0755'
+  when: ansible_os_family == "Debian"
+
+- name: Add command to start Apache in /etc/rc.local (for Debian family)
+  ansible.builtin.lineinfile:
+    path: /etc/rc.local
+    regexp: '^/usr/sbin/apachectl start$'
+    line: '/usr/sbin/apachectl start'
+    insertafter: 'exit 0'
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Restart Apache service
+  block:
+    - name: Restart Apache service using apachectl (for Debian family)
+      ansible.builtin.command:
+        cmd: /usr/sbin/apachectl restart
+      register: restart_apache_result
+      changed_when: restart_apache_result.rc == 0
+      when: ansible_os_family == "Debian"
+
+    - name: Restart Apache service using apachectl (for RedHat family)
+      ansible.builtin.command:
+        cmd: /usr/sbin/httpd -k restart
+      register: restart_apache_result
+      changed_when: restart_apache_result.rc == 0
+      when: ansible_os_family == "RedHat"
